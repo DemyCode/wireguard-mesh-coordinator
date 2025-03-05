@@ -1,0 +1,23 @@
+[project]
+name = "wireguard-mesh-coordinator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.11",
+    "pydantic>=2.10.6",
+]
+
+[project.scripts]
+hello = "wireguard_mesh_coordinator:hello.main"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.7",
+]
