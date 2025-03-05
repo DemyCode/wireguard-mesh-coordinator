@@ -85,18 +85,19 @@
 
     in
     {
-      # Package a virtual environment as our main application.
-      #
-      # Enable no optional dependencies for production build.
-      packages.x86_64-linux.default = (pythonSet.mkVirtualEnv "hello-world-env" workspace.deps.default).overrideAttrs (old: {
+      packages.x86_64-linux.default = (pythonSet.mkVirtualEnv "wireguard-mesh-coordinator" workspace.deps.default).overrideAttrs (old: {
         venvIgnoreCollisions = [ "*" ];
       });
 
       # Make hello runnable with `nix run`
       apps.x86_64-linux = {
-        default = {
+        wireguard-mesh-coordinator = {
           type = "app";
-          program = "${self.packages.x86_64-linux.default}/bin/hello";
+          program = "${self.packages.x86_64-linux.default}/bin/wireguard-mesh-coordinator";
+        };
+        wireguard-mesh-coordinator-server = {
+          type = "app";
+          program = "${self.packages.x86_64-linux.default}/bin/wireguard-mesh-coordinator-server";
         };
       };
 

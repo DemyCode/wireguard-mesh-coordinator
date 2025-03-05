@@ -6,13 +6,13 @@ USERNAME="root"
 
 scp $USERNAME@$KNOWN_PEER:/etc/wireguard/$WG_INTERFACE.conf remote.conf
 
-NEXT_IP=generate_next_ip.py | tail -n 1
-./generate_new_machine_config.py --peer-wire-guard-config remote.conf --peer-ip $KNOWN_PEER --next-internal-ip $NEXT_IP --output-file new.conf
-mv new.conf /etc/wireguard/$WG_INTERFACE.conf
+NEXT_IP=$(wireguard-mesh-coordinator generate-next-ip)
+wireguard-mesh-coordinator generate-new-machine-config $KNOWN_PEER $NEXT_IP remote.conf /etc/wireguard/$WG_INTERFACE.conf
 
 wg-quick down $WG_INTERFACE || echo "No existing interface to bring down"
 wg-quick up $WG_INTERFACE
 
 echo "New machine added to network"
 
-ssh $USERNAME@$KNOWN_PEER "python add_to_all_peer.py $NEXT_IP"
+ssh $USERNAME@$KNOWN_PEER "wireguard-mesh-coordinator register-and-propagate-new-machine $NEXT_IP $NEXT_IP $(curl -4 ifconfig.me)"
+

@@ -7,11 +7,12 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.11",
     "pydantic>=2.10.6",
+    "requests>=2.32.3",
+    "typer>=0.15.2",
 ]
 
 [project.scripts]
-hello = "wireguard_mesh_coordinator:hello.main"
-
+wireguard-mesh-coordinator = "wireguard_mesh_coordinator:main.app"
 
 [build-system]
 requires = ["hatchling"]
