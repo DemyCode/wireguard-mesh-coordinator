@@ -52,12 +52,14 @@ def read_wireguard_private_key():
 
 
 @app.command()
-def enter_network(known_peer_ip: str):
+def enter_network(known_peer_ip: str, ssh_private_key: str):
     os.system(f"scp root@{known_peer_ip}:/etc/wireguard/wg0.conf remote.conf")
     with open("remote.conf", "r") as file:
         peer_wire_guard_config = wg_quick_parser(file.read())
     next_ip = generate_next_ip_func(peer_wire_guard_config)
-    generate_new_machine_config(known_peer_ip, next_ip, "remote.conf", "/etc/wireguard/wg0.conf")
+    generate_new_machine_config(
+        known_peer_ip, next_ip, "remote.conf", "/etc/wireguard/wg0.conf"
+    )
 
     os.system("wg-quick down wg0")
     os.system("wg-quick up wg0")
@@ -66,4 +68,6 @@ def enter_network(known_peer_ip: str):
         wireguard_config = wg_quick_parser(file.read())
     private_key = wireguard_config.interface.private_key
     public_key = os.popen(f"echo {private_key} | wg pubkey").read().strip()
-    os.system(f"ssh root@{known_peer_ip} \"wireguard-mesh-coordinator register-and-propagate-new-machine {public_key} {next_ip} $(curl -4 ifconfig.me)")
+    os.system(
+        f'ssh -i {ssh_private_key} root@{known_peer_ip} "wireguard-mesh-coordinator register-and-propagate-new-machine {public_key} {next_ip} $(curl -4 ifconfig.me)"'
+    )
