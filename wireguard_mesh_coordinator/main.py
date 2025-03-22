@@ -4,7 +4,7 @@ from wireguard_mesh_coordinator.api import serve
 from wireguard_mesh_coordinator.generate_new_machine_config import generate_config
 from wireguard_mesh_coordinator.command import generate_next_ip_func
 from typer import Typer
-from wireguard_mesh_coordinator.utils import wg_quick_parser
+from wireguard_mesh_coordinator.utils import wg_quick_parser, wg_quick_dump
 from wireguard_mesh_coordinator.utils import WireGuardConfig, Interface
 from wireguard_mesh_coordinator.command import add_to_all_peers_and_myself
 from wireguard_mesh_coordinator.utils import NewPeer
@@ -30,17 +30,19 @@ def generate_new_machine_config(
 @app.command()
 def solo_network():
     private_key = os.popen("wg genkey").read().strip()
-    ip_address = os.popen("curl -4 ifconfig.me").read().strip()
     machine_config = WireGuardConfig(
         interface=Interface(
             private_key=private_key,
             listen_port=51820,
-            address=ip_address + "/24",
+            address="10.0.0.1/24",
         ),
         peers=[],
     )
-    with open("/etc/wireguard/wg0.conf", "w") as file:
-        file.write(str(machine_config))
+    filename = "/etc/wireguard/wg0.conf"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "w") as file:
+        file.write(wg_quick_dump(machine_config))
+    os.system("chmod 600 /etc/wireguard/wg0.conf")
     os.system("wg-quick down wg0")
     os.system("wg-quick up wg0")
 
