@@ -37,6 +37,10 @@ def solo_network():
         ),
         peers=[],
     )
+    with open("/etc/wireguard/wg0.conf", "w") as file:
+        file.write(str(machine_config))
+    os.system("wg-quick down wg0")
+    os.system("wg-quick up wg0")
 
 
 @app.command()
