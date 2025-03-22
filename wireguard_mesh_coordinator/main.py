@@ -6,6 +6,8 @@ from wireguard_mesh_coordinator.command import generate_next_ip_func
 from typer import Typer
 from wireguard_mesh_coordinator.utils import wg_quick_parser
 from wireguard_mesh_coordinator.utils import WireGuardConfig, Interface
+from wireguard_mesh_coordinator.command import add_to_all_peers_and_myself
+from wireguard_mesh_coordinator.utils import NewPeer
 
 app = Typer()
 
@@ -41,6 +43,15 @@ def solo_network():
         file.write(str(machine_config))
     os.system("wg-quick down wg0")
     os.system("wg-quick up wg0")
+
+
+@app.command()
+def register_and_propagate_new_machine(
+    public_key: str, allowed_ips: str, endpoint: str
+):
+    add_to_all_peers_and_myself(
+        NewPeer(public_key=public_key, allowed_ips=allowed_ips, endpoint=endpoint)
+    )
 
 
 @app.command()
