@@ -1,9 +1,11 @@
+from typing import Optional
 import os
 from wireguard_mesh_coordinator.api import serve
 from wireguard_mesh_coordinator.generate_new_machine_config import generate_config
 from wireguard_mesh_coordinator.command import generate_next_ip_func
 from typer import Typer
 from wireguard_mesh_coordinator.utils import wg_quick_parser
+from wireguard_mesh_coordinator.utils import WireGuardConfig, Interface
 
 app = Typer()
 
@@ -21,6 +23,20 @@ def generate_new_machine_config(
     new_config = generate_config(peer_wire_guard_config, peer_ip, next_internal_ip)
     with open(output, "w") as file:
         file.write(str(new_config))
+
+
+@app.command()
+def solo_network():
+    private_key = os.popen("wg genkey").read().strip()
+    ip_address = os.popen("curl -4 ifconfig.me").read().strip()
+    machine_config = WireGuardConfig(
+        interface=Interface(
+            private_key=private_key,
+            listen_port=51820,
+            address=ip_address + "/24",
+        ),
+        peers=[],
+    )
 
 
 @app.command()
