@@ -52,8 +52,10 @@
       apps.x86_64-linux = {
         wireguard-mesh-coordinator = {
           type = "app";
-          program =
-            "${self.packages.x86_64-linux.default}/bin/wireguard-mesh-coordinator";
+          program = pkgs.writeScriptBin "wireguard-mesh-coordinator" ''
+            export PATH=${pkgs.wireguard-tools}/bin:$PATH
+            exec ${self.packages.x86_64-linux.default}/bin/wireguard-mesh-coordinator "$@"
+          '';
         };
       };
     };
